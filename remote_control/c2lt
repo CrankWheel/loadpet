@@ -1,0 +1,33 @@
+#/bin/bash
+
+#
+# c2lt, short for "connect to loadtester"
+# 
+# This can be used to run X browsers on a given URL (with the {{NUMBER}} part replaced with unique numbers,
+# if desired).
+#
+# It makes several assumptions:
+# - You have load testing machines set up as EC2 instances in AWS
+# - Each of the machines are named loadtester1, loadtester2, etc.
+# - Your AWS credentials can be sourced from ~/.aws/source_credentials
+# - The contents of this repository reside at ~/viewer_load/vload/ on each machine
+#
+# Invoke it for example as:
+#
+#   c2lt 9 20 https://testserver.com/mypage?load_id={{NUMBER}}
+#
+# to connect to the machine named loadtester9 and run 20 browsers each of which spins up
+# https://testserver.com/mypage?load_id=0, https://testserver.com/mypage?load_id=1 up to
+# https://testserver.com/mypage?load_id=19
+
+source ~/.aws/source_credentials
+LTIPADDR=$(aws ec2 describe-instances --output text --no-paginate --filters Name=tag:Name,Values=loadtester$1 | cat | grep ASSOCIATION | head -1 | awk '{print $4}')
+
+echo "#!/bin/bash" > /tmp/doload
+echo "cd viewer_load/vload/" > /tmp/doload
+echo "node script.js $2 \"$3\"" >> /tmp/doload
+
+scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no /tmp/doload ec2-user@$LTIPADDR:/home/ec2-user/doload
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ec2-user@$LTIPADDR -tt "bash /home/ec2-user/doload"
+
+# ; bash -l

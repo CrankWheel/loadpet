@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#
+# killlt, short for "kill loadtester"
+# 
+# This will use AWS to kill the numbered load tester EC2 machine.
+#
+# It makes several assumptions:
+# - You have load testing machines set up as EC2 instances in AWS
+# - Each of the machines are named loadtester1, loadtester2, etc.
+# - Your AWS credentials can be sourced from ~/.aws/source_credentials
+#
+# Invoke it for example as:
+#
+#   killlt 3
+#
+# to start your EC2 instance named loadtester3
+
+source ~/.aws/source_credentials
+LTINSTANCE=$(aws ec2 describe-instances --output text --no-paginate --filters Name=tag:Name,Values=loadtester$1 | grep INSTANCES | awk '{print $8}')
+aws ec2 stop-instances --instance-ids $LTINSTANCE | cat

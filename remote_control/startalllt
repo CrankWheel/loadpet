@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# An example file that starts load testers 1 through 9.
+
+startlt 1
+startlt 2
+startlt 3
+startlt 4
+startlt 5
+startlt 6
+startlt 7
+startlt 8
+startlt 9

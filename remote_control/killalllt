@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# An example file that kills load testers 1 through 9
+
+killlt 1
+killlt 2
+killlt 3
+killlt 4
+killlt 5
+killlt 6
+killlt 7
+killlt 8
+killlt 9
